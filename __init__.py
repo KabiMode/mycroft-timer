@@ -651,7 +651,7 @@ class TimerSkill(MycroftSkill):
 
         # Send timer info to messagebus
         self.bus.emit(Message('skill.mycrofttimer.set',
-                           {"timer": timer }))
+                            {"timer": timer }))
 
         # INFORM USER
         if timer['ordinal'] > 1:
