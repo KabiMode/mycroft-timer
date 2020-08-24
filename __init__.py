@@ -322,7 +322,7 @@ class TimerSkill(MycroftSkill):
                 # in timer description.
                 if timers_have_ordinals and duration_matches:
                     ord_to_match = match['ordinal']
-                else: 
+                else:
                     ord_to_match = idx + 1
                 if ordinal == ord_to_match:
                     return "Match Found", [match]
@@ -452,6 +452,8 @@ class TimerSkill(MycroftSkill):
                                             "name": name,
                                             "ordinal": speakable_ord})
                 timer["announced"] = True
+                self.bus.emit(Message('skill.mycrofttimer.expired',
+                          {"timer": timer }))
 
     def render_timer(self, idx, seconds):
         display_owner = self.enclosure.display_manager.get_active()
@@ -647,6 +649,10 @@ class TimerSkill(MycroftSkill):
             self.log.debug('creating timer: {}: {}'.format(key, timer[key]))
         self.log.debug("---------------------------------------")
 
+        # Send timer info to messagebus
+        self.bus.emit(Message('skill.mycrofttimer.set',
+                           {"timer": timer }))
+
         # INFORM USER
         if timer['ordinal'] > 1:
             dialog = 'started.ordinal.timer'
@@ -732,6 +738,7 @@ class TimerSkill(MycroftSkill):
     @intent_handler(IntentBuilder("").require("Mute").require("Timer"))
     def handle_mute_timer(self, message):
         self.mute = True
+        self.bus.emit(Message('skill.mycrofttimer.muted'))
 
     @intent_file_handler('stop.timer.intent')
     def handle_stop_timer(self, message):
@@ -831,6 +838,8 @@ class TimerSkill(MycroftSkill):
             self.active_timers.remove(timer)
             if len(self.active_timers) == 0:
                 self.timer_index = 0  # back to zero timers
+            self.bus.emit(Message('skill.mycrofttimer.cancelled',
+                          {"timer": timer }))
             self.enclosure.eyes_on()  # reset just in case
 
     def shutdown(self):
