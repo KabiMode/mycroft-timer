@@ -453,7 +453,7 @@ class TimerSkill(MycroftSkill):
                                             "ordinal": speakable_ord})
                 timer["announced"] = True
                 self.bus.emit(Message('skill.mycrofttimer.expired',
-                          {"timer": timer }))
+                          {"name": timer['name'] }))
 
     def render_timer(self, idx, seconds):
         display_owner = self.enclosure.display_manager.get_active()
@@ -651,7 +651,7 @@ class TimerSkill(MycroftSkill):
 
         # Send timer info to messagebus
         self.bus.emit(Message('skill.mycrofttimer.set',
-                            {"timer": timer }))
+                            {"name": timer['name'] }))
 
         # INFORM USER
         if timer['ordinal'] > 1:
@@ -839,7 +839,7 @@ class TimerSkill(MycroftSkill):
             if len(self.active_timers) == 0:
                 self.timer_index = 0  # back to zero timers
             self.bus.emit(Message('skill.mycrofttimer.cancelled',
-                          {"timer": timer }))
+                          {"name": timer['name'] }))
             self.enclosure.eyes_on()  # reset just in case
 
     def shutdown(self):
